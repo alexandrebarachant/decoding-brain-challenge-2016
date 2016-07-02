@@ -99,6 +99,10 @@ clf = make_pipeline(DownSampler(2),
                     LogisticRegression(penalty='l1'))
 ```
 
+This model is inspired by the Common Spatio-spectral pattern [8] algorithm. The general idea is to build covariance matrices by concatenating time delayed trial along the channel axis (Hankel matrices). It allow to take into account the temporal information (through autocorrelation of channels) as well as spatial information. In some way, it can be linked to auto-regressive modeling of the signals.
+
+
+
 #### CSSP
 
 ```python
@@ -107,11 +111,13 @@ clf = make_pipeline(HankelCovariances(delays=[2, 4, 8, 12, 16], estimator='oas')
                     LogisticRegression(penalty='l1'))
 ```
 
+This model is can be seen as an indirect implementation of the CSSP algorithm [8]. It is done by feeding the well known CSP [9] spatial filtering with Hankel covariance matrices.
+
 ## Results
 
-Results are evaluated using a 3-fold cross validation. The cross validation was done with no shuffling to be representative of the train/test split of the challenge.
-
 ### Challenge
+
+Results are evaluated using a 3-fold cross validation. The cross validation was done with no shuffling to be representative of the train/test split of the challenge.
 
 #### Accuracy
 
@@ -134,7 +140,13 @@ Results are evaluated using a 3-fold cross validation. The cross validation was 
 | p4      | 0.894    | 0.873  | 0.861 | 0.871     | 0.861     | 0.797 | **0.914** |
 | Average | 0.915    | 0.929  | 0.925 | 0.947     | 0.869     | 0.810 | **0.966** |
 
+As we can see, ensembling allow to significantly boost performance beyond what a single model can acchieve. **ERPCov** is the best ERP model, and **Cosp** is the bes induced activity model.
+
 ### Paper
+
+Data from the original article [1] are public. While i did not use this dataset during the challenge, I tought it will be informative to evaluates performances of the different model on this dataset as well.
+
+Here again, a 3-Fold cross validation was used to evaluate performances.
 
 #### Accuracy
 
@@ -162,6 +174,8 @@ Results are evaluated using a 3-fold cross validation. The cross validation was 
 | zt      | 0.999    | **1.000**  | 0.995 | **1.000** | **1.000**     | 0.998 | **1.000**    |
 | Average | 0.979    | 0.988  | 0.972 | 0.996 | 0.987     | 0.958 | **0.998**    |
 
+Very interestingly, the **Cosp** model achieve highest performances, and provided better accuracy than the ensembling. The **CSSP** model was the worst performing model, and the **ERPCov** was again the best ERP based model.
+
 ## Discussion
 
 ### Things that didn't worked
@@ -187,3 +201,5 @@ Results are evaluated using a 3-fold cross validation. The cross validation was 
 >[6] A. Barachant, M. Congedo, G. Van Veen, C. Jutten, “Classification de potentiels evoques P300 par geometrie riemannienne pour les interfaces cerveau-machine EEG”, 24eme colloque GRETSI, 2013.
 >
 > [7] A. Barachant and S. Bonnet, “Channel selection procedure using riemannian distance for BCI applications,” in 2011 5th International IEEE/EMBS Conference on Neural Engineering (NER), 2011, 348-351
+>
+> [8] Lemm, Steven, et al. "Spatio-spectral filters for improving the classification of single trial EEG." IEEE Transactions on Biomedical Engineering 52.9 (2005): 1541-1548.
