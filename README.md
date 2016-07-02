@@ -209,6 +209,10 @@ here is the 5 easy step to reproduce the solution
 
 ![Azure](Azure.png)
 
+### Cross validation
+
+Cross validation results can be reproduced thanks to the two script `cross_validation_challenge.py` and `cross_validation_paper.py`
+
 ## References
 
 >[1] Miller, Kai J., Gerwin Schalk, Dora Hermes, Jeffrey G. Ojemann, and Rajesh PN Rao. "Spontaneous Decoding of the Timing and Content of Human Object Perception from Cortical Surface Recordings Reveals Complementary Information in the Event-Related Potential and Broadband Spectral Change." PLoS Comput Biol 12, no. 1 (2016)
