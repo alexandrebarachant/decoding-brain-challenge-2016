@@ -22,63 +22,59 @@ The final solution is a blend of 6 different models, 3 dedicated to detection of
 
 #### XdawnCov
 
-```
+```python
 clf = make_pipeline(XdawnCovariances(6, estimator='oas'),
-                    TangentSpace('riemann'),
-                    LogisticRegression('l1'))
+                    TangentSpace(metric='riemann'),
+                    LogisticRegression(penalty='l1'))
 ```
 
 #### ERPCov
 
-```
+```python
 clf = make_pipeline(ERPCovariances(svd=16, estimator='oas'),
-                    TangentSpace('logdet'),
-                    LogisticRegression('l1'))
+                    TangentSpace(metric='logdet'),
+                    LogisticRegression(penalty='l1'))
 ```
 
 #### Xdawn
 
-```
+```python
 clf = make_pipeline(Xdawn(12, estimator='oas'),
                     DownSampler(5),
                     EpochsVectorizer(),
-                    LogisticRegression('l2'))
+                    LogisticRegression(penalty='l2'))
 ```
 
 ### Induced activity models
 
 #### CospCov
 
-```
-clf = make_pipeline(CospCovariances(fs=1000, window=32, overlap=0.95,
-                                    fmax=300, fmin=1),
+```python
+clf = make_pipeline(CospCovariances(fs=1000, window=32, overlap=0.95, fmax=300, fmin=1),
                     CospBoostingClassifier(baseclf))
 ```
 
-```
-baseclf = make_pipeline(ElectrodeSelection(10, metric=dict(mean='logeuclid',
-                                                           distance='riemann')),
+```python
+baseclf = make_pipeline(ElectrodeSelection(10, metric=dict(mean='logeuclid', distance='riemann')),
                         TangentSpace(metric='riemann'),
-                        LogisticRegression('l1'))
+                        LogisticRegression(penalty='l1'))
 ```
 
 #### HankelCov
 
-```
+```python
 clf = make_pipeline(DownSampler(2),
-                    HankelCovariances(delays = [2, 4, 8, 12, 16],
-                                      estimator='oas'),
-                    TangentSpace('logeuclid'),
-                    LogisticRegression('l1'))
+                    HankelCovariances(delays=[2, 4, 8, 12, 16], estimator='oas'),
+                    TangentSpace(metric='logeuclid'),
+                    LogisticRegression(penalty='l1'))
 ```
 
 #### CSSP
 
-```
-clf = make_pipeline(HankelCovariances(delays = [2, 4, 8, 12, 16],
-                                      estimator='oas'),
+```python
+clf = make_pipeline(HankelCovariances(delays=[2, 4, 8, 12, 16], estimator='oas'),
                     CSP(30),
-                    LogisticRegression('l1'))
+                    LogisticRegression(penalty='l1'))
 ```
 
 ## Results
@@ -113,6 +109,18 @@ clf = make_pipeline(HankelCovariances(delays = [2, 4, 8, 12, 16],
 | CSSP      | 81.3 | 87.7 | 91.3 | 88.3 | 88.7 | 95.0 | 97.0  | 89.9    |
 | Ensemble  | **98.7** | 96.3 | 97.7 | 98.3 | 97.3 | **98.7** | 99.7  | 98.1    |
 
+#### AUC
+
+|         | XdawnCov | ERPCov | Xdawn | Cosp  | HankelCov | CSSP  | Ensemble |
+|---------|----------|--------|-------|-------|-----------|-------|----------|
+| ca      | 0.961    | 0.992  | 0.964 | **0.999** | 0.985     | 0.885 | **0.999**    |
+| de      | 0.960    | 0.951  | 0.987 | 0.996 | 0.953     | 0.954 | **0.998**    |
+| fp      | 0.982    | 0.996  | 0.935 | **1.000** | 0.998     | 0.975 | 0.997    |
+| ja      | 0.981    | 0.996  | 0.987 | **1.000** | 0.995     | 0.949 | 0.999    |
+| mv      | 0.977    | 0.989  | 0.936 | 0.983 | 0.984     | 0.952 | **0.994**    |
+| wc      | 0.993    | 0.996  | 0.996 | 0.996 | 0.990     | 0.990 | **0.999**    |
+| zt      | 0.999    | **1.000**  | 0.995 | **1.000** | **1.000**     | 0.998 | **1.000**    |
+| Average | 0.979    | 0.988  | 0.972 | 0.996 | 0.987     | 0.958 | **0.998**    |
 
 ## Discussion
 
