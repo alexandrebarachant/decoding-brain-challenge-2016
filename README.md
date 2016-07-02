@@ -174,15 +174,23 @@ Here again, a 3-Fold cross validation was used to evaluate performances.
 | zt      | 0.999    | **1.000**  | 0.995 | **1.000** | **1.000**     | 0.998 | **1.000**    |
 | Average | 0.979    | 0.988  | 0.972 | 0.996 | 0.987     | 0.958 | **0.998**    |
 
-Very interestingly, the **Cosp** model achieve highest performances, and provided better accuracy than the ensembling. The **CSSP** model was the worst performing model, and the **ERPCov** was again the best ERP based model.
+Very interestingly, the **Cosp** model achieve highest performances, and provided better accuracy than the ensembling. This results illustrates the benefits of ensembling for more challenging dataset.
+
+The **CSSP** model was the worst performing model, and the **ERPCov** was again the best ERP based model.
 
 ## Discussion
 
-### Things that didn't worked
+This ensemble of model achieved a near perfect separation of the two classes (0.998 AUC) on the 7 subject from the paper [1]. The accuracy was significantly worse on 3 of the 4 subject of the dataset. Subject p4 was the most challenging, and was driving down the accuracy.
+
+My feeling is that performances on these 4 patients can be marginally increased with more advanced models. However, it will be difficult to raise it to the level of the one obtained with the patient from the paper. Data were nosier, and electrodes position on the grid may not be optimal to detect the face vs. house patterns.
+
+In this challenge, the window of analysis was limited to 400ms after the stimulus, which truncates the ERP and the induced activity. It is possible to achieve higher accuracy by increasing the window by 200ms.
+
+#### Things that didn't worked
 - preprocessing, bagging, stacking, domain adaptation
 
-### Things that could have improved the results
-- longer epochs, data leak, better model selection (without CSSP)
+#### Things that could have improved the results
+- longer epochs, data leak (re-ordering the trials), better model selection (without CSSP)
 
 ## Reproduce the results
 
@@ -203,3 +211,6 @@ Very interestingly, the **Cosp** model achieve highest performances, and provide
 > [7] A. Barachant and S. Bonnet, “Channel selection procedure using riemannian distance for BCI applications,” in 2011 5th International IEEE/EMBS Conference on Neural Engineering (NER), 2011, 348-351
 >
 > [8] Lemm, Steven, et al. "Spatio-spectral filters for improving the classification of single trial EEG." IEEE Transactions on Biomedical Engineering 52.9 (2005): 1541-1548.
+>
+> [9] Zoltan J. Koles, Michael S. Lazar, Steven Z. Zhou. Spatial Patterns
+Underlying Population Differences in the Background EEG. Brain Topography 2(4), 275-284, 1990.
