@@ -5,6 +5,7 @@ Data consisted in ECoG recording of 4 patients while they were presented picture
 
 The experiemental protocol was identitcal to the one described in [1], but the dataset was much more challenging.
 
+#### If you have questions about the models and the solution, open an Issue on github and i will be happy to provide more insight.
 
 ## Foreword
 There is some general ideas I followed to build my models for this challenge. I will develop them here.
@@ -165,14 +166,14 @@ Here again, a 3-Fold cross validation was used to evaluate performances.
 
 |         | XdawnCov | ERPCov | Xdawn | Cosp  | HankelCov | CSSP  | Ensemble |
 |---------|----------|--------|-------|-------|-----------|-------|----------|
-| ca      | 0.961    | 0.992  | 0.964 | **0.999** | 0.985     | 0.885 | **0.999**    |
-| de      | 0.960    | 0.951  | 0.987 | 0.996 | 0.953     | 0.954 | **0.998**    |
-| fp      | 0.982    | 0.996  | 0.935 | **1.000** | 0.998     | 0.975 | 0.997    |
-| ja      | 0.981    | 0.996  | 0.987 | **1.000** | 0.995     | 0.949 | 0.999    |
-| mv      | 0.977    | 0.989  | 0.936 | 0.983 | 0.984     | 0.952 | **0.994**    |
-| wc      | 0.993    | 0.996  | 0.996 | 0.996 | 0.990     | 0.990 | **0.999**    |
-| zt      | 0.999    | **1.000**  | 0.995 | **1.000** | **1.000**     | 0.998 | **1.000**    |
-| Average | 0.979    | 0.988  | 0.972 | 0.996 | 0.987     | 0.958 | **0.998**    |
+| ca      | 0.961    | 0.992  | 0.964 | **0.999**| 0.985| 0.885 | **0.999**  |
+| de      | 0.960    | 0.951  | 0.987 | 0.996 | 0.953 | 0.954 | **0.998**    |
+| fp      | 0.982    | 0.996  | 0.935 | **1.000** | 0.998 | 0.975 | 0.997    |
+| ja      | 0.981    | 0.996  | 0.987 | **1.000** | 0.995 | 0.949 | 0.999    |
+| mv      | 0.977    | 0.989  | 0.936 | 0.983 | 0.984 | 0.952 | **0.994**    |
+| wc      | 0.993    | 0.996  | 0.996 | 0.996 | 0.990 | 0.990 | **0.999**    |
+| zt      | 0.999|**1.000** | 0.995 | **1.000**|**1.000**| 0.998 | **1.000** |
+| Average | 0.979    | 0.988  | 0.972 | 0.996 | 0.987 | 0.958 | **0.998**    |
 
 Very interestingly, the **Cosp** model achieve highest performances, and provided better accuracy than the ensembling. This results illustrates the benefits of ensembling for more challenging dataset.
 
@@ -180,11 +181,13 @@ The **CSSP** model was the worst performing model, and the **ERPCov** was again 
 
 ## Discussion
 
-This ensemble of model achieved a near perfect separation of the two classes (0.998 AUC) on the 7 subject from the paper [1]. The accuracy was significantly worse on 3 of the 4 subject of the dataset. Subject p4 was the most challenging, and was driving down the accuracy.
+This ensemble of model achieved a near perfect separation of the two classes (0.998 AUC) on the 7 subject from the paper [1]. The accuracy was significantly worse on 3 of the 4 subject of the challenge dataset. Subject p4 was the most challenging, and was driving down the accuracy.
 
-My feeling is that performances on these 4 patients can be marginally increased with more advanced models. However, it will be difficult to raise it to the level of the one obtained with the patient from the paper. Data were nosier, and electrodes position on the grid may not be optimal to detect the face vs. house patterns.
+My feeling is that performances on these 4 patients can be marginally increased with more advanced models. However, it will be difficult to raise it to the level of accuracy obtained with the patients from the paper. Data were nosier, and electrodes position on the grid may not be optimal to detect the face vs. house patterns.
 
 In this challenge, the window of analysis was limited to 400ms after the stimulus, which truncates the ERP and the induced activity. It is possible to achieve higher accuracy by increasing the window by 200ms.
+
+A proper validation procedure was the key to develop the models. In the context of the challenge, shuffling the trials for cross validation was to avoid, since it was not promoting models that were robust to time variability of the signals.
 
 #### Things that didn't worked
 - preprocessing, bagging, stacking, domain adaptation
@@ -193,6 +196,18 @@ In this challenge, the window of analysis was limited to 400ms after the stimulu
 - longer epochs, data leak (re-ordering the trials), better model selection (without CSSP)
 
 ## Reproduce the results
+
+To reproduce the results, you will need my toolbox pyRiemann, as well as scikit learn.
+
+here is the 5 easy step to reproduce the solution
+
+- 1) Download the data and place them on the root of the repository.
+- 2) run the script `generate_models.py`
+- 3) zip the content of the `models` folder and upload it to the Azure plateform
+- 4) Create a new experiement reproducing the picture below using the python script `Azure_python_script.py` provided in this repo.
+- 5) Enjoy.
+
+![Azure](Azure.png)
 
 ## References
 
