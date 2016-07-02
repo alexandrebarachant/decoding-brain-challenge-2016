@@ -202,7 +202,7 @@ To reproduce the results, you will need my toolbox pyRiemann, as well as scikit 
 here is the 5 easy step to reproduce the solution
 
 - 1) Download the data and place them on the root of the repository.
-- 2) run the script `generate_models.py`
+- 2) run the script `generate_models.py`. This should take 5 minutes on a normal laptop.
 - 3) zip the content of the `models` folder and upload it to the Azure plateform
 - 4) Create a new experiement reproducing the picture below using the python script `Azure_python_script.py` provided in this repo.
 - 5) Enjoy.
