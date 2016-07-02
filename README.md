@@ -32,6 +32,8 @@ Since covariance matrices are positive and definite matrices, they have a specif
 
 The models used in this challenge were already available as part of the [pyRiemann](http://pythonhosted.org/pyriemann/) toolbox. Almost no custom code has been developed.
 
+Parameters of the models were optimized to maximize the diversity of the ensemble. They have been tuned by hand, not to maximize individual performance, but to obtain the best ensembling results.
+
 ### ERPs models
 
 #### XdawnCov
@@ -52,7 +54,7 @@ clf = make_pipeline(ERPCovariances(svd=16, estimator='oas'),
                     LogisticRegression(penalty='l1'))
 ```
 
-This model is very similar to the previous one, without Xdawn spatial filtering. it rely on the a specific covariance matrix estimation adapted to evoked potential [4, 5, 6].
+This model is very similar to the previous one, without Xdawn spatial filtering. it rely on the a specific covariance matrix estimation adapted to evoked potential [4, 5, 6]. Although this model is dedicated to ERP classification, the special form covariance matrix embed allow to catch induced activity as well.
 
 #### Xdawn
 
@@ -63,6 +65,8 @@ clf = make_pipeline(Xdawn(12, estimator='oas'),
                     LogisticRegression(penalty='l2'))
 ```
 
+This model can be considered as the standard pipeline for classification of ERPs. Spatial filtering is applied to reduce dimension and find components that contains the evoked potential, then epochs are downsampled, vectorized and fed into a logistic regression.
+
 ### Induced activity models
 
 #### CospCov
@@ -72,11 +76,19 @@ clf = make_pipeline(CospCovariances(fs=1000, window=32, overlap=0.95, fmax=300, 
                     CospBoostingClassifier(baseclf))
 ```
 
+This model relies on cospectral covariance matrices i.e. covariances matrices are estimated in the FFT domain (using a sliding FFT window), producing one set of matrices for each frequency bins. Frequency bins ranging from 1 to 300 Hz were used, and with the FFT window of 32 samples, it produced ~ 10 different set of matrices (30 Hz bins) on which an independent classifier was applied. Output probabilities of each model were then averaged.
+
+The classifier applied on each bin consisted in the following pipeline:
+
 ```python
 baseclf = make_pipeline(ElectrodeSelection(10, metric=dict(mean='logeuclid', distance='riemann')),
                         TangentSpace(metric='riemann'),
                         LogisticRegression(penalty='l1'))
 ```
+
+An electrode selection (with a criterion based on Riemannian distance [7]) procedure was used to select the 10 most relevant channel. Reduced covariance matrices were then projected in the tangent space and classified with a logistic regression.
+
+While this can be considered as a single model, it is a bagging of independent model applied for each frequency bins. This model is one of the most robust one.
 
 #### HankelCov
 
@@ -162,14 +174,16 @@ Results are evaluated using a 3-fold cross validation. The cross validation was 
 
 ## References
 
-[1] Miller, Kai J., Gerwin Schalk, Dora Hermes, Jeffrey G. Ojemann, and Rajesh PN Rao. "Spontaneous Decoding of the Timing and Content of Human Object Perception from Cortical Surface Recordings Reveals Complementary Information in the Event-Related Potential and Broadband Spectral Change." PLoS Comput Biol 12, no. 1 (2016)
-
-[2] Rivet, B., Souloumiac, A., Attina, V., & Gibert, G. (2009). xDAWN algorithm to enhance evoked potentials: application to brain-computer interface. Biomedical Engineering, IEEE Transactions on, 56(8), 2035-2043.
-
-[3] Rivet, B., Cecotti, H., Souloumiac, A., Maby, E., & Mattout, J. (2011, August). Theoretical analysis of xDAWN algorithm: application to an efficient sensor selection in a P300 BCI. In Signal Processing Conference, 2011 19th European (pp. 1382-1386). IEEE.
-
-[4] A. Barachant, M. Congedo ,”A Plug&Play P300 BCI Using Information Geometry”, arXiv:1409.0107, 2014.
-
-[5] M. Congedo, A. Barachant, A. Andreev ,”A New generation of Brain-Computer Interface Based on Riemannian Geometry”, arXiv: 1310.8115. 2013.
-
-[6] A. Barachant, M. Congedo, G. Van Veen, C. Jutten, “Classification de potentiels evoques P300 par geometrie riemannienne pour les interfaces cerveau-machine EEG”, 24eme colloque GRETSI, 2013.
+>[1] Miller, Kai J., Gerwin Schalk, Dora Hermes, Jeffrey G. Ojemann, and Rajesh PN Rao. "Spontaneous Decoding of the Timing and Content of Human Object Perception from Cortical Surface Recordings Reveals Complementary Information in the Event-Related Potential and Broadband Spectral Change." PLoS Comput Biol 12, no. 1 (2016)
+>
+>[2] Rivet, B., Souloumiac, A., Attina, V., & Gibert, G. (2009). xDAWN algorithm to enhance evoked potentials: application to brain-computer interface. Biomedical Engineering, IEEE Transactions on, 56(8), 2035-2043.
+>
+>[3] Rivet, B., Cecotti, H., Souloumiac, A., Maby, E., & Mattout, J. (2011, August). Theoretical analysis of xDAWN algorithm: application to an efficient sensor selection in a P300 BCI. In Signal Processing Conference, 2011 19th European (pp. 1382-1386). IEEE.
+>
+>[4] A. Barachant, M. Congedo ,”A Plug&Play P300 BCI Using Information Geometry”, arXiv:1409.0107, 2014.
+>
+>[5] M. Congedo, A. Barachant, A. Andreev ,”A New generation of Brain-Computer Interface Based on Riemannian Geometry”, arXiv: 1310.8115. 2013.
+>
+>[6] A. Barachant, M. Congedo, G. Van Veen, C. Jutten, “Classification de potentiels evoques P300 par geometrie riemannienne pour les interfaces cerveau-machine EEG”, 24eme colloque GRETSI, 2013.
+>
+> [7] A. Barachant and S. Bonnet, “Channel selection procedure using riemannian distance for BCI applications,” in 2011 5th International IEEE/EMBS Conference on Neural Engineering (NER), 2011, 348-351
