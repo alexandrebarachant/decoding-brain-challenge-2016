@@ -3,10 +3,10 @@
 This data analysis challenge was organized on the Microsoft Azure ML plateform.
 Data consisted in ECoG recording of 4 patients while they were presented picture of Face and House. The task was to build model achieving the highest categorization accuracy between the two type of pictures.
 
-The experiemental protocol was identitcal to the one described in [1], but the dataset was much more challenging (lower quality ?).
+The experiemental protocol was identitcal to the one described in [1], but the dataset was much more challenging.
 
 
-## Forewords
+## Foreword
 There is some general ideas I followed to build my models for this challenge. I will develop them here.
 
 - **Subject specific training**. Due to the difference in electrode implantation as well as the subject specificities of the brain patterns, the best solution was to train models independently on each subjects. While it was possible to fine-tune each model for each subjects, i choose not to do it, for the sake of scalability. The models and their hyper-parameters are common for each patient, but they are trained independently.  
