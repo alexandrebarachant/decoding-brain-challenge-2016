@@ -84,6 +84,8 @@ clf = make_pipeline(HankelCovariances(delays=[2, 4, 8, 12, 16], estimator='oas')
 
 ## Results
 
+Results are evaluated using a 3-fold cross validation. The cross validation was done with no shuffling to be representative of the train/test split of the challenge.
+
 ### Challenge
 
 #### Accuracy
