@@ -9,7 +9,7 @@ The experiemental protocol was identitcal to the one described in [1], but the d
 ## Foreword
 There is some general ideas I followed to build my models for this challenge. I will develop them here.
 
-- **Subject specific training**. Due to the difference in electrode implantation as well as the subject specificities of the brain patterns, the best solution was to train models independently on each subjects. While it was possible to fine-tune each model for each subjects, i choose not to do it, for the sake of scalability. The models and their hyper-parameters are common for each patient, but they are trained independently.  
+- **Subject specific training**. Due to the difference in electrode implantation as well as the subject specificities of the brain patterns, the best solution was to train models independently on each subjects. While it was possible to fine-tune each model for each subjects, i choose not to do it, for the sake of scalability. The models and their hyper-parameters are common for all patients, but they are trained independently on each of them.  
 
 - **No Preprocessing**. Biosignal analysis is generally heavy in preprocessing. Common Average Reference (CAR), notch filters and Baseline correction are one of these common steps that are blindly applied in the majority of the literature. Due to the trials of test data being shuffled, i was reluctant to use continuous filtering, and filtering epoched data is generally sub-optimal (Even more in this case where the end of the epoch was still containing useful information). As a consequence, I benchmarked the use of different preprocessing methods with my pipeline and found that none of them where improving my local validation. Therefore, I chose not to apply any preprocessing of the data and directly feed the raw signal to my models.
 
@@ -20,13 +20,13 @@ There is some general ideas I followed to build my models for this challenge. I 
 ## Solution
 
 There is two type of brain activity to be exploited in this dataset:
-- 1) [Event Related Potentials](https://en.wikipedia.org/wiki/Event-related_potential) (ERPs) : a waveform that is phase-locked with the stimulus onset. This activity is generally classified in the time domain.
+- 1) [Event Related Potentials](https://en.wikipedia.org/wiki/Event-related_potential) (ERPs) : a waveform that is phase-locked with the stimulus onset. This activity is generally classified in the time domain and can be visualized by averaging all the epochs corresponding to a single class.
 
-- 2) Induced Response (or [Neural oscillations](https://en.wikipedia.org/wiki/Neural_oscillation)): an oscillatory activity appearing shortly after the stimulus. this activity is not phase-locked and is typically extracted in the frequency domain.
+- 2) Induced Response (or [Neural oscillations](https://en.wikipedia.org/wiki/Neural_oscillation)): an oscillatory activity appearing shortly after the stimulus. this activity is not phase-locked and is typically extracted in the frequency domain. It can be visualized by averaging time-frequency maps of the epochs.
 
 The final solution is a blend of 6 different models, 3 dedicated to detection of evoked potential, and 3 to induced activity. For all models, data ranging from 100ms to 400ms after the onset of the stimulation have been used. No preprocessing or artifact rejection has been applied.
 
-Most of these models are based on my work on Riemannian Geometry. The general idea is to use covariance matrices as feature for the classification. Tt allows to take into account the spatial structure (through correlation between channels) of the brain patterns. 
+Most of these models are based on my work on Riemannian Geometry. The general idea is to use covariance matrices as feature for the classification. It allows to take into account the spatial structure (through correlation between channels) of the brain patterns.
 
 Since covariance matrices are positive and definite matrices, they have a specific structure that must be taken into account when we manipulate and compare them. This is done through the use of Riemannian Geometry. In this work, covariance matrices are mapped into their Riemannian tangent space and vectorized. This can be seen as a kernel operation that is optimal for dealing with SPD matrices.
 
@@ -42,6 +42,8 @@ clf = make_pipeline(XdawnCovariances(6, estimator='oas'),
                     LogisticRegression(penalty='l1'))
 ```
 
+This model is essentialy the one used in the [BCI challenge 2015](https://github.com/alexandrebarachant/bci-challenge-ner-2015). It is composed of Xdawn spatial filtering [2, 3], a method that find linear combination of channel that maximize the signal to noise ratio of the Evoked response. Signal are spatially filtered and a special form covariance matrix [4] is estimated, projected into the Riemannian tangent space and classified by a logistic regression.
+
 #### ERPCov
 
 ```python
@@ -49,6 +51,8 @@ clf = make_pipeline(ERPCovariances(svd=16, estimator='oas'),
                     TangentSpace(metric='logdet'),
                     LogisticRegression(penalty='l1'))
 ```
+
+This model is very similar to the previous one, without Xdawn spatial filtering. it rely on the a specific covariance matrix estimation adapted to evoked potential [4, 5, 6].
 
 #### Xdawn
 
@@ -159,3 +163,13 @@ Results are evaluated using a 3-fold cross validation. The cross validation was 
 ## References
 
 [1] Miller, Kai J., Gerwin Schalk, Dora Hermes, Jeffrey G. Ojemann, and Rajesh PN Rao. "Spontaneous Decoding of the Timing and Content of Human Object Perception from Cortical Surface Recordings Reveals Complementary Information in the Event-Related Potential and Broadband Spectral Change." PLoS Comput Biol 12, no. 1 (2016)
+
+[2] Rivet, B., Souloumiac, A., Attina, V., & Gibert, G. (2009). xDAWN algorithm to enhance evoked potentials: application to brain-computer interface. Biomedical Engineering, IEEE Transactions on, 56(8), 2035-2043.
+
+[3] Rivet, B., Cecotti, H., Souloumiac, A., Maby, E., & Mattout, J. (2011, August). Theoretical analysis of xDAWN algorithm: application to an efficient sensor selection in a P300 BCI. In Signal Processing Conference, 2011 19th European (pp. 1382-1386). IEEE.
+
+[4] A. Barachant, M. Congedo ,”A Plug&Play P300 BCI Using Information Geometry”, arXiv:1409.0107, 2014.
+
+[5] M. Congedo, A. Barachant, A. Andreev ,”A New generation of Brain-Computer Interface Based on Riemannian Geometry”, arXiv: 1310.8115. 2013.
+
+[6] A. Barachant, M. Congedo, G. Van Veen, C. Jutten, “Classification de potentiels evoques P300 par geometrie riemannienne pour les interfaces cerveau-machine EEG”, 24eme colloque GRETSI, 2013.
