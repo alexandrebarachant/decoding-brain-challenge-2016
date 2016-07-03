@@ -141,7 +141,7 @@ Results are evaluated using a 3-fold cross validation. The cross validation was 
 | p4      | 0.894    | 0.873  | 0.861 | 0.871     | 0.861     | 0.797 | **0.914** |
 | Average | 0.915    | 0.929  | 0.925 | 0.947     | 0.869     | 0.810 | **0.966** |
 
-As we can see, ensembling allow to significantly boost performance beyond what a single model can acchieve. **ERPCov** is the best ERP model, and **Cosp** is the bes induced activity model.
+As we can see, ensembling allow to significantly boost performance beyond what a single model can acchieve. **ERPCov** is the best ERP model, and **Cosp** is the best induced activity model. This is actually not surprinsing since the **Cosp** model is already an enemble of several models (more robust to overfitting).
 
 ### Paper
 
