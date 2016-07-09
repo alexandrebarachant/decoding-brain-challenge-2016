@@ -1,4 +1,4 @@
-# Solution of the Decoding Brain Signals Cortana challenge
+# Winning solution of the Decoding Brain Signals Cortana challenge
 
 This data analysis challenge was organized on the Microsoft Azure ML plateform.
 Data consisted in ECoG recording of 4 patients while they were presented picture of Face and House. The task was to build model achieving the highest categorization accuracy between the two type of pictures.
@@ -25,7 +25,7 @@ There is two type of brain activity to be exploited in this dataset:
 
 - 2) Induced Response (or [Neural oscillations](https://en.wikipedia.org/wiki/Neural_oscillation)): an oscillatory activity appearing shortly after the stimulus. this activity is not phase-locked and is typically extracted in the frequency domain. It can be visualized by averaging time-frequency maps of the epochs.
 
-The final solution is a blend of 6 different models, 3 dedicated to detection of evoked potential, and 3 to induced activity. For all models, data ranging from 100ms to 400ms after the onset of the stimulation have been used. No preprocessing or artifact rejection has been applied.
+The final solution is a blend of 5 different models, 2 dedicated to detection of evoked potential, and 3 to induced activity. For all models, data ranging from 100ms to 400ms after the onset of the stimulation have been used. No preprocessing or artifact rejection has been applied.
 
 Most of these models are based on my work on Riemannian Geometry. The general idea is to use covariance matrices as feature for the classification. It allows to take into account the spatial structure (through correlation between channels) of the brain patterns.
 
@@ -45,17 +45,7 @@ clf = make_pipeline(XdawnCovariances(6, estimator='oas'),
                     LogisticRegression(penalty='l1'))
 ```
 
-This model is essentialy the one used in the [BCI challenge 2015](https://github.com/alexandrebarachant/bci-challenge-ner-2015). It is composed of Xdawn spatial filtering [2, 3], a method that find linear combination of channel that maximize the signal to noise ratio of the Evoked response. Signal are spatially filtered and a special form covariance matrix [4] is estimated, projected into the Riemannian tangent space and classified by a logistic regression.
-
-#### ERPCov
-
-```python
-clf = make_pipeline(ERPCovariances(svd=16, estimator='oas'),
-                    TangentSpace(metric='logdet'),
-                    LogisticRegression(penalty='l1'))
-```
-
-This model is very similar to the previous one, without Xdawn spatial filtering. it rely on the a specific covariance matrix estimation adapted to evoked potential [4, 5, 6]. Although this model is dedicated to ERP classification, the special form covariance matrix embed allow to catch induced activity as well.
+This model is essentialy the one used in the [BCI challenge 2015](https://github.com/alexandrebarachant/bci-challenge-ner-2015). It is composed of Xdawn spatial filtering [2, 3], a method that find linear combination of channel that maximize the signal to noise ratio of the Evoked response. Signal are spatially filtered and a special form covariance matrix [4, 5, 6] is estimated, projected into the Riemannian tangent space and classified by a logistic regression.
 
 #### Xdawn
 
@@ -122,26 +112,25 @@ Results are evaluated using a 3-fold cross validation. The cross validation was 
 
 #### Accuracy
 
-|         | XdawnCov | ERPCov | Xdawn | Cosp      | HankelCov | CSSP | Ensemble |
-|---------|----------|--------|-------|-----------|-----------|------|----------|
-| p1      | 85.0     | 82.0   | 88.0  | 89.0      | 81.5      | 76.0 | **93.0** |
-| p2      | 83.0     | 89.0   | 88.0  | 84.0      | 67.0      | 62.5 | **94.5** |
-| p3      | 84.5     | 95.0   | 90.0  | **100.0** | 96.0      | 88.0 | 99.5     |
-| p4      | 82.5     | 81.0   | 76.5  | 77.6      | 80.0      | 75.0 | **83.0** |
-| Average | 83.8     | 86.7   | 85.6  | 87.6      | 81.1      | 75.4 | **92.5** |
-
+|         | XdawnCov | Xdawn | Cosp      | HankelCov | CSSP | Ensemble |
+|---------|----------|-------|-----------|-----------|------|----------|
+| p1      | 85.5     | 88.0  | 89.0      | 81.5      | 76.0 | **92.5** |
+| p2      | 88.0     | 88.0  | 84.0      | 68.0      | 62.5 | **94.0** |
+| p3      | 90.0     | 90.0  | **100.0** | 96.5      | 88.0 | 99.0     |
+| p4      | 82.5     | 76.5  | 77.6      | 80.0      | 74.5 | **83.0** |
+| Average | 86.5     | 85.6  | 87.6      | 81.5      | 75.2 | **92.1** |
 
 #### AUC
 
-|         | XdawnCov | ERPCov | Xdawn | Cosp      | HankelCov | CSSP  | Ensemble  |
-|---------|----------|--------|-------|-----------|-----------|-------|-----------|
-| p1      | 0.907    | 0.889  | 0.924 | 0.968     | 0.879     | 0.823 | **0.973** |
-| p2      | 0.927    | 0.959  | 0.949 | 0.948     | 0.742     | 0.686 | **0.977** |
-| p3      | 0.930    | 0.994  | 0.967 | **1.000** | 0.996     | 0.935 | **1.000** |
-| p4      | 0.894    | 0.873  | 0.861 | 0.871     | 0.861     | 0.797 | **0.914** |
-| Average | 0.915    | 0.929  | 0.925 | 0.947     | 0.869     | 0.810 | **0.966** |
+|         | XdawnCov | Xdawn | Cosp  | HankelCov | CSSP  | Ensemble  |
+|---------|----------|-------|-------|-----------|-------|-----------|
+| p1      | 0.934    | 0.924 | 0.968 | 0.879     | 0.824 | **0.977** |
+| p2      | 0.949    | 0.949 | 0.948 | 0.746     | 0.686 | **0.973** |
+| p3      | 0.976    | 0.967 | **1** | 0.995     | 0.935 | **1**     |
+| p4      | 0.895    | 0.861 | 0.871 | 0.861     | 0.797 | **0.919** |
+| Average | 0.939    | 0.925 | 0.947 | 0.870     | 0.811 | **0.968** |
 
-As we can see, ensembling allow to significantly boost performance beyond what a single model can acchieve. **ERPCov** is the best ERP model, and **Cosp** is the bes induced activity model.
+As we can see, ensembling allow to significantly boost performance beyond what a single model can acchieve. **XdawnCov** is the best ERP model, and **Cosp** is the bes induced activity model.
 
 ### Paper
 
@@ -151,33 +140,33 @@ Here again, a 3-Fold cross validation was used to evaluate performances.
 
 #### Accuracy
 
-|         | XdawnCov | ERPCov | Xdawn | Cosp      | HankelCov | CSSP | Ensemble |
-|---------|----------|--------|-------|-----------|-----------|------|----------|
-| ca      | 89.3     | 96.3   | 90.0  | **98.7**  | 96.0      | 81.3 | **98.7** |
-| de      | 90.7     | 88.7   | 95.0  | **98.0**  | 89.3      | 87.7 | 96.3     |
-| fp      | 93.3     | 97.3   | 84.0  | **99.7**  | 96.3      | 91.3 | 97.7     |
-| ja      | 93.3     | 96.0   | 94.7  | **99.7**  | 97.7      | 88.0 | 98.3     |
-| mv      | 94.0     | 96.3   | 85.7  | **98.0**  | 95.7      | 88.7 | 97.3     |
-| wc      | 97.7     | 98.3   | 97.7  | 97.3      | 95.0      | 95.0 | **98.7** |
-| zt      | 98.7     | 99.0   | 99.3  | **100.0** | 99.3      | 97.0 | 99.7     |
-| Average | 93.9     | 96.0   | 92.3  | **98.8**  | 95.6      | 89.9 | 98.1     |
+|         | XdawnCov | Xdawn | Cosp      | HankelCov | CSSP | Ensemble  |
+|---------|----------|-------|-----------|-----------|------|-----------|
+| ca      | 92.3     | 90.0  | **98.7**  | 96.0      | 81.3 | **98.7**  |
+| de      | 91.0     | 95.0  | **98.0**  | 89.7      | 87.7 | 97.7      |
+| fp      | 95.3     | 84.0  | **99.7**  | 96.3      | 91.3 | 97.7      |
+| ja      | 94.7     | 94.7  | **99.7**  | 97.7      | 88.3 | 98.3      |
+| mv      | 94.3     | 85.7  | **98.0**  | 95.7      | 89.0 | 97.0      |
+| wc      | 98.7     | 97.7  | 97.3      | 95.0      | 95.0 | **99.0**  |
+| zt      | 99.7     | 99.3  | **100.0** | 99.3      | 97.0 | **100.0** |
+| Average | 95.1     | 92.3  | **98.8**  | 95.7      | 90.0 | 98.3      |
 
 #### AUC
 
-|         | XdawnCov | ERPCov | Xdawn | Cosp  | HankelCov | CSSP  | Ensemble |
-|---------|----------|--------|-------|-------|-----------|-------|----------|
-| ca      | 0.961    | 0.992  | 0.964 | **0.999**| 0.985| 0.885 | **0.999**  |
-| de      | 0.960    | 0.951  | 0.987 | 0.996 | 0.953 | 0.954 | **0.998**    |
-| fp      | 0.982    | 0.996  | 0.935 | **1.000** | 0.998 | 0.975 | 0.997    |
-| ja      | 0.981    | 0.996  | 0.987 | **1.000** | 0.995 | 0.949 | 0.999    |
-| mv      | 0.977    | 0.989  | 0.936 | 0.983 | 0.984 | 0.952 | **0.994**    |
-| wc      | 0.993    | 0.996  | 0.996 | 0.996 | 0.990 | 0.990 | **0.999**    |
-| zt      | 0.999|**1.000** | 0.995 | **1.000**|**1.000**| 0.998 | **1.000** |
-| Average | 0.979    | 0.988  | 0.972 | 0.996 | 0.987 | 0.958 | **0.998**    |
+|         | XdawnCov | Xdawn | Cosp      | HankelCov | CSSP  | Ensemble  |
+|---------|----------|-------|-----------|-----------|-------|-----------|
+| ca      | 0.983    | 0.964 | **0.999** | 0.985     | 0.884 | **0.999** |
+| de      | 0.970    | 0.987 | 0.996     | 0.953     | 0.954 | **0.999** |
+| fp      | 0.993    | 0.935 | **1**     | 0.998     | 0.975 | 0.997     |
+| ja      | 0.989    | 0.987 | **1**     | 0.995     | 0.949 | 0.999     |
+| mv      | 0.981    | 0.936 | 0.983     | 0.984     | 0.951 | **0.994** |
+| wc      | 0.998    | 0.996 | 0.996     | 0.990     | 0.990 | **0.999** |
+| zt      | **1**    | 0.995 | **1**     | **1**     | 0.998 | **1**     |
+| Average | 0.988    | 0.972 | 0.996     | 0.987     | 0.957 | **0.998** |
 
 Very interestingly, the **Cosp** model achieve highest performances, and provided better accuracy than the ensembling. This results illustrates the benefits of ensembling for more challenging dataset.
 
-The **CSSP** model was the worst performing model, and the **ERPCov** was again the best ERP based model.
+The **CSSP** model was the worst performing model, and the **XdawnCov** was again the best ERP based model.
 
 ## Discussion
 

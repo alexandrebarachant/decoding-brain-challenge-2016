@@ -24,11 +24,7 @@ array_clfs = OrderedDict()
 # ERPs models
 array_clfs['XdawnCov'] = make_pipeline(XdawnCovariances(6, estimator='oas'),
                                        TangentSpace('riemann'),
-                                       LogisticRegression('l1'))
-
-array_clfs['ERPCov'] = make_pipeline(ERPCovariances(svd=16, estimator='oas'),
-                                     TangentSpace('logdet'),
-                                     LogisticRegression('l1'))
+                                       LogisticRegression('l2'))
 
 array_clfs['Xdawn'] = make_pipeline(Xdawn(12, estimator='oas'),
                                     DownSampler(5),
