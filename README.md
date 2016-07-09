@@ -42,7 +42,7 @@ Parameters of the models were optimized to maximize the diversity of the ensembl
 ```python
 clf = make_pipeline(XdawnCovariances(6, estimator='oas'),
                     TangentSpace(metric='riemann'),
-                    LogisticRegression(penalty='l1'))
+                    LogisticRegression(penalty='l2'))
 ```
 
 This model is essentialy the one used in the [BCI challenge 2015](https://github.com/alexandrebarachant/bci-challenge-ner-2015). It is composed of Xdawn spatial filtering [2, 3], a method that find linear combination of channel that maximize the signal to noise ratio of the Evoked response. Signal are spatially filtered and a special form covariance matrix [4, 5, 6] is estimated, projected into the Riemannian tangent space and classified by a logistic regression.
